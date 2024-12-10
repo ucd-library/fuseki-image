@@ -1,0 +1,16 @@
+{
+  "registry" : "us-west1-docker.pkg.dev/aggie-experts/docker",
+  "images" : {
+    "fuseki" : {
+      "contextPath" : ".",
+      "options" : {
+        "build-arg" : [
+          "OPENJDK=openjdk:17-slim-bullseye",
+          "MAVEN=maven:3-openjdk-17-slim",
+          "JENA_VERSION=5.1.0",
+          "HDT_VERSION=v3.0.10"
+        ]
+      }
+    }
+  }
+}
