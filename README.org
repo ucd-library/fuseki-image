@@ -11,37 +11,18 @@
  The fuseki layout file identifies that we need remove the ${FUSEKI_BASE}/system
  and ${FUSEKI_BASE}/system_files to reset the server.
 
+ The Dockerfile combines the Apache Jena Project, both jena and fuseki, along
+ with update the the ~/fuseki/extra~ area to support hdt-jena, and also a JS
+ engine.  The fuseki instance actually copies existing jars from the apache jena
+ repo, and adds them to the image.
+
  Some good review of all of Jena's tools are found in this [[https://www.bobdc.com/blog/jenagems/][blog post]].
 
-** Environmental Variables
 
-   The following environmental variables are used.  These are primarily used in
-   the config.ttl.tmpl file.  The current image reloads the config.tll.tmpl into
-   the /fuseki/config.ttl file on every startup.  This is to allow us to see
-   changes affected in the .env file.  I suppose, we could instead do this on
-   every *new* container, not on every startup.
+** Javascript functions
 
-   For now, however, that means you need to change the config.ttl.tmpl version
-   if you want to change config.ttl for testing.
-
-   - ~${FUSEKI_TIMEOUT_FIRST:-30000}~ How long to wait (in ms) for first output
-
-   - ~${FUSEKI_TIMEOUT_REST:-120000}~ When to stop delivering data
-
-   - ~${FUSEKI_ARQ_LOGEXEC:-info}~ Log Level info,fine or full See [[https://jena.apache.org/documentation/fuseki2/fuseki-logging.html][Logging]]
-
-   - ~${FUSEKI_PASSWORD:-testing123}~ Fuseke Admin password
-
-   - ~${FUSEKI_BASE}~ Fuseki base (set to ucd.process in our setup)
-
-** Docker instance
-
-   The Dockerfile combines the Apache Jena Project, both jena and fuseki, along
-   with update the the ~/fuseki/extra~ area to support hdt-jena, and also a JS
-   engine.
-
-   The fuseki instance actually copies existing jars from the apache jena repo,
-   and adds them to the image.
+This image includes a javascript engine, and some example functions, see
+[[file:./fuseki/sparql-js-functions.js]] for the functions added.
 
 ** Running the image
 *** Adding an HDT file as a persistent graph
@@ -96,14 +77,34 @@ docker cp example_config.ttl fuseki-data:/fuseki/configurations
 After running `docker restart fuseki` in this case, you will now have a
 read-only additional dataset.
 
+*** Environmental Variables
+   The following environmental variables are used.  These are primarily used in
+   the config.ttl.tmpl file.  The current image reloads the config.tll.tmpl into
+   the /fuseki/config.ttl file on every startup.  This is to allow us to see
+   changes affected in the .env file.  I suppose, we could instead do this on
+   every *new* container, not on every startup.
+
+   For now, however, that means you need to change the config.ttl.tmpl version
+   if you want to change config.ttl for testing.
+
+   - ~${FUSEKI_TIMEOUT_FIRST:-30000}~ How long to wait (in ms) for first output
+
+   - ~${FUSEKI_TIMEOUT_REST:-120000}~ When to stop delivering data
+
+   - ~${FUSEKI_ARQ_LOGEXEC:-info}~ Log Level info,fine or full See [[https://jena.apache.org/documentation/fuseki2/fuseki-logging.html][Logging]]
+
+   - ~${FUSEKI_PASSWORD:-testing123}~ Fuseke Admin password
+
+   - ~${FUSEKI_BASE}~ Fuseki base (set to ucd.process in our setup)
+
 *** Extended Example
 
 The [example](./example) directory contains a more complete example that shows
 how this image can be used, it includes two examples, using docker-compose files
 to manage the data and the container.
 
-** OpenJDK
 
+** Build information
    The openjdk stage of the build was inspired by
 https://github.com/EKGF/debian-openjdk-python3-awscli which I found primarily
 because they have sparql style tools as well.
