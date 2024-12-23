@@ -2,6 +2,8 @@ ARG OPENJDK
 ARG MAVEN
 ARG JENA_VERSION
 ARG HDT_VERSION
+ARG JENA_TAR_SHA512
+ARG FUSEKI_TAR_MD5
 
 # We install hdt binaries completely seperately from our fuseki extras below
 FROM $MAVEN AS hdt-java
@@ -91,11 +93,11 @@ FROM openjdk
 
 # Config and data
 ARG JENA_VERSION
+ARG JENA_TAR_SHA512
+ARG FUSEKI_TAR_MD5
 
 ARG FUSEKI_HOME=/usr/share/fuseki
-#ARG FUSEKI_JAR=jena-fuseki-server-${JENA_VERSION}.jar
 ARG FUSEKI_BASE=/etc/fuseki
-
 
 USER root
 ENV LANG=C.UTF-8
@@ -121,8 +123,6 @@ ENV PATH=$PATH:/opt/hdt-java/bin
 WORKDIR /tmp
 ARG JENA_REPO=https://archive.apache.org/dist/jena/binaries
 
-#RG JENA_TAR_SHA512=04f87c42a3b5fe65ad554beb8a1ef90ca7e0305d306fb18a15bb808891c259f420ab4f630e6b4abbb017e32284f97e23f7b848a21dc57f32ad53f604cb82e28b
-ARG JENA_TAR_SHA512=f426275591aaa5274a89cab2f2ee16623086c5f0c7669bda5b2cead90089497e57098885745fd88e3c7db75cbaac48fe58f84ec9cd2dbb937592ff2f0ef0f92e
 RUN echo "$JENA_TAR_SHA512 jena.tar.gz" > jena.tar.gz.sha512
 # Download/check/unpack/move in one go (to reduce image size)
 RUN     curl --location --silent --show-error --fail --retry-connrefused --retry 3 --output jena.tar.gz ${JENA_REPO}/apache-jena-$JENA_VERSION.tar.gz && \
@@ -142,9 +142,6 @@ RUN riot  --version
 WORKDIR /tmp
 ARG JENA_REPO=https://archive.apache.org/dist/jena/binaries
 
-# published sha512 checksum
-#ARG FUSEKI_TAR_MD5=84079078b761e31658c96797e788137205fc93091ab5ae511ba80bdbec3611f4386280e6a0dc378b80830f4e5ec3188643e2ce5e1dd35edfd46fa347da4dbe17
-ARG FUSEKI_TAR_MD5=50d33937092e8120d57f503b6e96ef988894602aa060ff945ec3aecf0349b0b22250e158bb379d0300589653dc9d6f3e6eb2b9790b5125144108dd6f19dc41e6
 RUN echo "$FUSEKI_TAR_MD5 fuseki.tar.gz" > fuseki.tar.gz.sha512
 # Download/check/unpack/move in one go (to reduce image size)
 
@@ -164,7 +161,7 @@ COPY --from=extra /fuseki/extra/* $FUSEKI_HOME/extra/
 COPY fuseki $FUSEKI_HOME
 
 # Test the install by testing it's ping resource
-RUN  $FUSEKI_HOME/fuseki-server-hdt & \
+RUN  $FUSEKI_HOME/fuseki-server & \
      sleep 5 && \
      curl -sS --fail 'http://localhost:3030/$/ping'
 
@@ -185,5 +182,5 @@ ENV JVM_ARGS="-Xmx2g -Djena.scripting=true"
 WORKDIR $FUSEKI_HOME
 EXPOSE 3030
 ENTRYPOINT ["/fuseki-entrypoint.sh"]
-CMD "${FUSEKI_HOME}/fuseki-server-hdt"
+CMD "${FUSEKI_HOME}/fuseki-server"
 #CMD "/usr/bin/curl" "-sS" "--fail" "http://localhost:3030/$/ping"
