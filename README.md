@@ -12,5 +12,9 @@ web interface, backed by the
 extended with support for
 [HDT Files](https://github.com/rdfhdt/hdt-java) files.
 
+## Usage
 
+```bash
+docker run --name fuseki -p 3030:3030  us-west1-docker.pkg.dev/aggie-experts/docker/fuseki:1.0.1
+```
 
