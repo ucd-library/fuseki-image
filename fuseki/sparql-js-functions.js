@@ -89,8 +89,8 @@ function capitalizeTitle(title) {
         }).join(delimiter);
       };
 
-      // First handle hyphens
-      //word = capitalizeParts(word, '-');
+      // Just do the word
+      word = capitalizeParts(word, ' ');
 
       return word;
     });
