@@ -19,6 +19,51 @@
  Some good review of all of Jena's tools are found in this [[https://www.bobdc.com/blog/jenagems/][blog post]].
 
 
+** Building
+
+This image uses the cork-kube application to build.  As such, you would build
+this image with something like
+
+#+begin_src bash
+    cork-kube build exec --project=fuseki-image --version=2.0.0 \
+  	    --local-dev-registry=localhost/aggie-experts
+#+end_src
+
+Or, while developing...
+
+#+begin_src bash
+  cork-kube register-local-repo .
+  cork-kube build exec --project=fuseki-image --version=main --fuseki-image=dirty \
+            --local-dev-registry=localhost/aggie-experts \
+            --cork-build-registry=../cork-build-registry
+#+end_src
+
+Remember, that ARGs for the Dockerfile are in the .cork-build file.
+
+For testing, an example docker executable might be:
+
+#+begin_src bash
+  docker run --rm -p 3030 localhost/aggie-experts/fuseki:dirty
+#+end_src
+
+The default username:password is $admin:testing123$
+
+*** Volume /var/lib/fuseki
+
+This Dockerfile creates a VOLUME, for databases at $/var/lib/fuseki$.
+
+
+*** Additional Build information
+   The openjdk stage of the build was inspired by
+https://github.com/EKGF/debian-openjdk-python3-awscli which I found primarily
+because they have sparql style tools as well.
+
+The above project references a comparison of Alpine to Debian for this image due
+to these two articles:
+- https://pythonspeed.com/articles/base-image-python-docker-images/
+- https://pythonspeed.com/articles/alpine-docker-python/
+
+
 ** Javascript functions
 
 This image includes a javascript engine, and some example functions, see
@@ -102,14 +147,3 @@ read-only additional dataset.
 The [example](./example) directory contains a more complete example that shows
 how this image can be used, it includes two examples, using docker-compose files
 to manage the data and the container.
-
-
-** Build information
-   The openjdk stage of the build was inspired by
-https://github.com/EKGF/debian-openjdk-python3-awscli which I found primarily
-because they have sparql style tools as well.
-
-The above project references a comparison of Alpine to Debian for this image due
-to these two articles:
-- https://pythonspeed.com/articles/base-image-python-docker-images/
-- https://pythonspeed.com/articles/alpine-docker-python/
