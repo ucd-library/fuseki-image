@@ -43,10 +43,6 @@ FROM $OPENJDK AS openjdk
 
 ENV YQ_VERSION="3.3.2"
 
-# This is replicated at run time in openjdk-functions.sh
-#ENV HOME=/home/ucd.process
-#RUN useradd --system --no-user-group --home-dir /home/ucd.process --create-home --shell /bin/bash --uid ${UID} --gid 0 ucd.process && \
-
 #   Ensure that the local paths are preferred
 ENV PATH=/usr/local/bin:$PATH
 ENV LANG=C.UTF-8
@@ -91,11 +87,8 @@ FROM openjdk
 
 # Config and data
 ARG JENA_VERSION
-
 ARG FUSEKI_HOME=/usr/share/fuseki
-#ARG FUSEKI_JAR=jena-fuseki-server-${JENA_VERSION}.jar
-ARG FUSEKI_BASE=/etc/fuseki
-
+ARG FUSEKI_BASE=/var/lib/fuseki
 
 USER root
 ENV LANG=C.UTF-8
@@ -160,7 +153,7 @@ RUN tar zxf fuseki.tar.gz && \
 # Get our extra jars
 COPY --from=extra /fuseki/extra/* $FUSEKI_HOME/extra/
 
-# Copy to FUSEKI_BASE
+# Copy fuseki
 COPY fuseki $FUSEKI_HOME
 
 # Test the install by testing it's ping resource
@@ -180,6 +173,8 @@ RUN chmod 755 /fuseki-entrypoint.sh
 ENV FUSEKI_HOME=${FUSEKI_HOME}
 ENV FUSEKI_BASE=${FUSEKI_BASE}
 ENV JVM_ARGS="-Xmx2g -Djena.scripting=true"
+
+VOLUME ${FUSEKI_BASE}
 
 # Where we start our server from
 WORKDIR $FUSEKI_HOME
